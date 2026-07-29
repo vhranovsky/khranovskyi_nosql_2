@@ -1,21 +1,24 @@
 # scripts/01_prepare_data.py
+
 import json
 import os
 import pandas as pd
 from tqdm import tqdm
 
+
 INPUT_FILE  = "arxiv-metadata-oai-snapshot.json"
 OUTPUT_FILE = "data/arxiv_subset.parquet"
 MAX_RECORDS = 10_000
 
+
 os.makedirs("data", exist_ok=True)
 
+
 def extract_year(paper: dict) -> int:
-    """
-    Беремо рік із першої версії статті — це дата публікації на arXiv.
-    update_date — дата останнього оновлення, вона може бути на роки пізніше.
-    Формат created: "Mon, 2 Apr 2007 19:18:42 GMT"
-    """
+    # Беремо рік із першої версії статті — це дата публікації на arXiv.
+    # update_date — дата останнього оновлення, вона може бути на роки пізніше.
+    # Формат created: "Mon, 2 Apr 2007 19:18:42 GMT"
+
     try:
         versions = paper.get("versions", [])
         if versions:
@@ -27,12 +30,12 @@ def extract_year(paper: dict) -> int:
     # Запасний варіант: update_date у форматі "YYYY-MM-DD"
     return int(paper.get("update_date", "2000-01-01")[:4])
 
+
 def format_authors(paper: dict) -> str:
-    """
-    authors_parsed — структурований список [["Прізвище", "Ініціали", ""]].
-    Збираємо у читабельний рядок "Прізвище І., Прізвище І."
-    Якщо authors_parsed відсутній — беремо сирий рядок authors.
-    """
+    # authors_parsed — структурований список [["Прізвище", "Ініціали", ""]].
+    # Збираємо у читабельний рядок "Прізвище І., Прізвище І."
+    # Якщо authors_parsed відсутній — беремо сирий рядок authors.
+    
     parsed = paper.get("authors_parsed", [])
     if parsed:
         parts = []
@@ -76,14 +79,26 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
             "category": primary_category,
         })
 
-df = pd.DataFrame(records)
-print(f"\nЗавантажено статей:{len(df)}")
-print(f"\nРозподіл за категоріями (топ-10):")
-print(df["category"].value_counts().head(10))
-print(f"\nРозподіл за роками:")
-print(df["year"].value_counts().sort_index().tail(10))
-print(f"\nПриклад запису:")
-print(df.iloc[0].to_dict())
 
-df.to_parquet(OUTPUT_FILE, index=False)
-print(f"\nЗбережено в{OUTPUT_FILE}")
+def main():
+    if not records:
+        print("Немає записів для збереження.")
+        return
+
+    df = pd.DataFrame(records)
+    print(f"\nЗавантажено статей:{len(df)}")
+    print(f"\nРозподіл за категоріями (топ-10):")
+    print(df["category"].value_counts().head(10))
+    print(f"\nРозподіл за роками:")
+    print(df["year"].value_counts().sort_index().tail(10))
+    print(f"\nПриклад запису:")
+    print(df.iloc[0].to_dict())
+
+    df.to_parquet(OUTPUT_FILE, index=False)
+    print(f"\nЗбережено в{OUTPUT_FILE}")
+
+
+
+if __name__ == "__main__":
+    main()
+
