@@ -3,7 +3,8 @@
 import os
 import pandas as pd
 import numpy as np
-from sentence_transformers import SentenceTransformer, models
+from utils import prepare_model
+
 
 def main():
     # 1. Завантаження датасету
@@ -23,9 +24,8 @@ def main():
     print("Завантаження моделі...")
 
     # 3.1 Щоб позбутися цього повідомлення: No sentence-transformers model found with name allenai/specter2_base. Creating a new one with mean pooling.
-    word_embedding_model = models.Transformer("allenai/specter2_base")
-    pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension())
-    model = SentenceTransformer(modules=[word_embedding_model, pooling_model])
+
+    model = prepare_model()
     # model = SentenceTransformer("allenai/specter2_base")
     
     # 4. Генерація ембеддингів (батчі, прогрес-бар, примусова нормалізація)
