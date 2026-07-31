@@ -33,7 +33,6 @@ def print_results(title: str, results: dict):
     print(f"{'='*50}")
     for i, match in enumerate(results['matches']):
         meta = match['metadata']
-        # Повний абстракт беремо з DataFrame за ID (якщо потрібно), але тут обійдемося Pinecone метаданими
         print(f"[{i+1}] Score: {match['score']:.4f} | Year: {meta['year']} | Cat: {meta['category']}")
         print(f"Title: {meta['title']}")
         print(f"Abstract snippet: {meta['abstract'][:150]}...\n")
@@ -78,19 +77,15 @@ def local_metric_comparison():
     query = "teaching machines to recognize objects in pictures"
     query_vec = np.array(encode_query(query))
     
-    # Завантаження локальних векторів
     all_embeddings = np.load("embeddings/embeddings.npy")
     
-    # 1. Dot Product (Скалярний добуток)
     dot_scores = np.dot(all_embeddings, query_vec)
     top_dot_idx = np.argsort(dot_scores)[::-1][:TOP_K]
     
-    # 2. Cosine Similarity
     norms = np.linalg.norm(all_embeddings, axis=1) * np.linalg.norm(query_vec)
     cos_scores = np.dot(all_embeddings, query_vec) / norms
     top_cos_idx = np.argsort(cos_scores)[::-1][:TOP_K]
     
-    # 3. L2 Distance (Евклідова відстань)
     l2_scores = np.linalg.norm(all_embeddings - query_vec, axis=1)
     top_l2_idx = np.argsort(l2_scores)[:TOP_K]
     
