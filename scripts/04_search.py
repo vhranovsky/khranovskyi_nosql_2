@@ -95,7 +95,7 @@ def local_metric_comparison():
     top_l2_idx = np.argsort(l2_scores)[:TOP_K]
     
     print("Індекси Топ-5 результатів (Dot Product):   ", top_dot_idx)
-    print("Індекси Топ-5 результатів (Cosine Sim):    ", top_cos_idx)
+    print("Індекси Топ-5 результатів (Cosine Similarity):    ", top_cos_idx)
     print("Індекси Топ-5 результатів (L2 Distance):   ", top_l2_idx)
 
 
