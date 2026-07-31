@@ -15,27 +15,17 @@ os.makedirs("data", exist_ok=True)
 
 
 def extract_year(paper: dict) -> int:
-    # Беремо рік із першої версії статті — це дата публікації на arXiv.
-    # update_date — дата останнього оновлення, вона може бути на роки пізніше.
-    # Формат created: "Mon, 2 Apr 2007 19:18:42 GMT"
-
     try:
         versions = paper.get("versions", [])
         if versions:
-            created = versions[0]["created"]  # "Mon, 2 Apr 2007 19:18:42 GMT"
-            # Рік стоїть на 4-й позиції після split по пробілу
+            created = versions[0]["created"]
             return int(created.split()[3])
     except (IndexError, ValueError, KeyError):
         pass
-    # Запасний варіант: update_date у форматі "YYYY-MM-DD"
     return int(paper.get("update_date", "2000-01-01")[:4])
 
 
 def format_authors(paper: dict) -> str:
-    # authors_parsed — структурований список [["Прізвище", "Ініціали", ""]].
-    # Збираємо у читабельний рядок "Прізвище І., Прізвище І."
-    # Якщо authors_parsed відсутній — беремо сирий рядок authors.
-    
     parsed = paper.get("authors_parsed", [])
     if parsed:
         parts = []
@@ -45,8 +35,9 @@ def format_authors(paper: dict) -> str:
             if last:
                 parts.append(f"{last}{first}".strip())
         return ", ".join(parts)
-    # Запасний варіант: сирий рядок авторів
+   
     return paper.get("authors", "").replace("\\n", " ")
+
 
 records = []
 with open(INPUT_FILE, "r", encoding="utf-8") as f:
@@ -61,7 +52,6 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
         abstract = paper.get("abstract", "").strip()
         title    = paper.get("title", "").strip()
 
-        # Пропускаємо записи без анотації або заголовка
         if not abstract or not title:
             continue
 

@@ -14,21 +14,18 @@ def main():
         
     df = pd.read_parquet(dataset_path)
     
-    # 2. Підготовка текстів (Чіткий формат SPECTER: title [SEP] abstract)
+    # Підготовка текстів (Формат SPECTER: title [SEP] abstract)
     if 'title' not in df.columns or 'abstract' not in df.columns:
         raise ValueError("Датасет повинен містити колонки 'title' та 'abstract'")
         
     texts = (df['title'] + " [SEP] " + df['abstract']).tolist()
     
-    # 3. Завантаження моделі
     print("Завантаження моделі...")
 
-    # 3.1 Щоб позбутися цього повідомлення: No sentence-transformers model found with name allenai/specter2_base. Creating a new one with mean pooling.
-
+    # Щоб позбутися цього повідомлення: No sentence-transformers model found with name allenai/specter2_base. Creating a new one with mean pooling.
     model = prepare_model()
     # model = SentenceTransformer("allenai/specter2_base")
     
-    # 4. Генерація ембеддингів (батчі, прогрес-бар, примусова нормалізація)
     print("Початок генерації ембеддингів...")
     embeddings = model.encode(
         texts,
@@ -49,9 +46,8 @@ def main():
     print("----------------------------")
     
     if embedding_dim != 768:
-        print("!!! Розмірність не дорівнює 768. Перевірте модель.")
+        print("!!! Розмірність не дорівнює 768. Необхідно перевірити модель.")
     
-    # 6-7. Створення директорії та збереження файлу
     output_dir = "embeddings"
     os.makedirs(output_dir, exist_ok=True)
     
@@ -62,3 +58,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
